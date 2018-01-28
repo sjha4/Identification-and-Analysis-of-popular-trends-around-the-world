@@ -1,5 +1,9 @@
 # Team 8 Project
 
+## Developers:
+* Samir Jha (sjha4@ncsu.edu)
+* Aditya Bhardwaj (adbhardwa2@ncsu.edu)
+* Gautam Verma (gverma3@ncsu.edu)
 
 ## Code Structure:
 
