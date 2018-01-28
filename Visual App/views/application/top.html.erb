@@ -1,0 +1,55 @@
+<html>
+<script>
+  $( document ).ready(function() {
+        var labels = [];
+        var data = [];
+        console.log('render report');
+        $.ajax({
+          url: "https://dicteam8-restapi.herokuapp.com/hour",
+          type: 'GET'
+        }).done(function (response) {
+
+          var parsedChartdata;// = $.parseJSON(response);
+          console.log(response);
+
+          response.forEach(function(entry) {
+            labels.push(entry.keyword);
+            data.push(entry.count);
+            console.log(entry);
+            console.log(labels);
+            console.log(data);
+          });
+          var mychart = new Chart(document.getElementById("pie-chart"), {
+            type: 'pie',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: "Keyword (Score)",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#c2af0d","#3588f2","#34ab49","#29572d","#5bde16"],
+                data: data
+              }]
+            },
+            options: {
+              title: {
+                display: true,
+                text: 'Top keywords of the last hour'
+              }
+            }
+          });
+          $("#pie-chart").click(
+              function(evt){
+                var activePoints = mychart.getElementsAtEvent(evt);
+                window.location.href = "meetupKeyword/"+labels[activePoints[0]._index];
+
+              }
+          );
+        })
+
+  })
+</script>
+<body>
+
+<canvas id="pie-chart" width="400" height="150"></canvas>
+
+</body>
+</html>

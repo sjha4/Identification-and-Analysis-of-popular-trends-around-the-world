@@ -1,0 +1,73 @@
+package controllers;
+
+import play.mvc.*;
+
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputDescription;
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
+
+import java.util.List;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Regions;
+
+
+/**
+ * This controller contains an action to handle HTTP requests
+ * to the application's home page.
+ */
+public class HomeController extends Controller {
+
+    /**
+     * An action that renders an HTML page with a welcome message.
+     * The configuration in the <code>routes</code> file means that
+     * this method will be called when the application receives a
+     * <code>GET</code> request with a path of <code>/</code>.
+     */
+	AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.standard()
+			.withRegion(Regions.US_EAST_1)
+			.build();
+	String table_name = "combinedTable";
+    public Result index() {
+    	try {
+    	    TableDescription table_info =
+    	       ddb.describeTable(table_name).getTable();
+
+    	    if (table_info != null) {
+    	        System.out.format("Table name  : %s\n",
+    	              table_info.getTableName());
+    	        System.out.format("Table ARN   : %s\n",
+    	              table_info.getTableArn());
+    	        System.out.format("Status      : %s\n",
+    	              table_info.getTableStatus());
+    	        System.out.format("Item count  : %d\n",
+    	              table_info.getItemCount().longValue());
+    	        System.out.format("Size (bytes): %d\n",
+    	              table_info.getTableSizeBytes().longValue());
+
+    	        ProvisionedThroughputDescription throughput_info =
+    	           table_info.getProvisionedThroughput();
+    	        System.out.println("Throughput");
+    	        System.out.format("  Read Capacity : %d\n",
+    	              throughput_info.getReadCapacityUnits().longValue());
+    	        System.out.format("  Write Capacity: %d\n",
+    	              throughput_info.getWriteCapacityUnits().longValue());
+
+    	        List<AttributeDefinition> attributes =
+    	           table_info.getAttributeDefinitions();
+    	        System.out.println("Attributes");
+    	        for (AttributeDefinition a : attributes) {
+    	            System.out.format("  %s (%s)\n",
+    	                  a.getAttributeName(), a.getAttributeType());
+    	        }
+    	    }
+    	} catch (AmazonServiceException e) {
+    	    System.err.println(e.getErrorMessage());
+    	    System.exit(1);
+    	}
+        return ok(views.html.index.render());
+    }
+
+}

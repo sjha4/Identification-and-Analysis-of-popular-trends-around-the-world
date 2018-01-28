@@ -1,0 +1,80 @@
+<html>
+
+  <header>
+    <style>
+  @-moz-keyframes spin {
+    0%   {color: red; background-color: black;}
+    25%  {color: blue; background-color: white;}
+    50%  {color: yellow; background-color: black;}
+    75%  {color: green; background-color: white;}
+    100% {color: red; background-color: black;}
+  }
+  @-webkit-keyframes spin {
+    0%   {color: red; background-color: black;}
+    25%  {color: blue; background-color: white;}
+    50%  {color: yellow; background-color: black;}
+    75%  {color: green; background-color: white;}
+    100% {color: red; background-color: black;}
+  }
+  @keyframes spin {
+    0%   {color: red; background-color: black;}
+    25%  {color: blue; background-color: darkgray;}
+    50%  {color: yellow; background-color: black;}
+    75%  {color: green; background-color: darkgray;}
+    100% {color: red; background-color: black;}
+  }
+  html {
+    height: 100%;
+  }
+  body {
+    min-height: 100%;
+    background-image: url(<%= asset_path 'background_spot_light_surface_texture_50715_1920x1080.jpg' %>);
+    background-size: 100%;
+  }
+  .text-primary{
+    font-family: Fredericka the Great, sans-serif;
+    font-weight: bold;
+    color: black;
+    border-color: #0000aa;
+  }
+
+  .btn-danger {
+    background-color: black;
+    padding:-1px;
+  }
+  .btn-success {
+    background-color: black;
+  }
+  .btn-info {
+    background-color: black;
+  }
+  .navbar-btn{
+    margin: 1%;
+  }
+  .form-group{
+    font-family: Fredericka the Great, sans-serif;
+    font-weight: bold;
+    color: black;
+  }
+
+  button{
+    font-family: Fredericka the Great, sans-serif;
+    font-weight: bold;
+    font-size: 120%;
+    margin: 1%;
+  }
+  p{
+    font-family: Fredericka the Great, sans-serif;
+    font-size: 110%;
+    color: black;
+  }
+</style>
+<script>
+  $( document ).ready(function() {
+    $("#Top10Today").click(function () {
+      var new_path = <%=top_path%>;
+    })
+  });
+</script>
+  </header>
+</html>

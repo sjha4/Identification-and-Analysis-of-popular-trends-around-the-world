@@ -1,0 +1,89 @@
+package controllers;
+
+import play.mvc.*;
+
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputDescription;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Regions;
+
+
+/**
+ * This controller contains an action to handle HTTP requests
+ * to the application's home page.
+ */
+public class HomeController extends Controller {
+
+    /**
+     * An action that renders an HTML page with a welcome message.
+     * The configuration in the <code>routes</code> file means that
+     * this method will be called when the application receives a
+     * <code>GET</code> request with a path of <code>/</code>.
+     */
+	AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.standard()
+			.withRegion(Regions.US_EAST_1)
+			.build();
+	String table_name = "live_twitter_dic8";
+    public Result index() {
+    	int countRecords =0;
+    	int countReplies = 0;
+    	Map<String,Integer> keywordCount = new HashMap<>();
+    	try {
+    	    TableDescription table_info =
+    	       ddb.describeTable(table_name).getTable();
+    	    ScanRequest scanRequest = new ScanRequest()
+                    .withTableName(table_name);
+    	    Map<String,AttributeValue> lastKey = null;
+    	    
+            do {
+            	
+                ScanResult scanResult = ddb.scan(scanRequest);
+     
+                List<Map<String,AttributeValue>> results = scanResult.getItems();
+                results.forEach(r->{
+                	System.out.println("count: " + ++countRecords);
+                	System.out.println(r);
+                	});
+                for(Map<String,AttributeValue> mp : results){
+                	//for(String s:mp.keySet()){
+                		try{
+                			countReplies = mp.get("replies").getN()==null?-99:Integer.parseInt(mp.get("replies").getN());
+                		}
+                		catch(Exception e){
+                			countReplies = -99;
+                		}
+                		if(keywordCount.containsKey(mp.get("key_word"))){
+                			keywordCount.put(mp.get("key_word").getS(), keywordCount.get(mp.get("key_word"))+ countReplies);
+                		}
+                		else{
+                			keywordCount.put(mp.get("key_word").getS(),countReplies);
+                		}
+                	//}
+                }
+                //results.forEach(r->System.out.println(r.get("key_word").getS()));
+                lastKey = scanResult.getLastEvaluatedKey();
+                scanRequest.setExclusiveStartKey(lastKey);
+            } while (lastKey!=null);
+    	} catch (AmazonServiceException e) {
+    	    System.err.println(e.getErrorMessage());
+    	    System.exit(1);
+    	}
+    	System.out.println("----------------------Scanned Results-------------------------");
+    	for(String s:keywordCount.keySet()){
+    		System.out.println(s+" : " + keywordCount.get(s));
+    	}
+        return ok(views.html.index.render());
+    }
+
+}

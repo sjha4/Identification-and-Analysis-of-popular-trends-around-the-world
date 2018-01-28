@@ -1,0 +1,48 @@
+{
+    "venue_visibility ": "public ",
+    "status ": "upcoming ",
+    "utc_offset ": -14400000,
+    "event_url ": "https://www.meetup.com/Boston-Minstrels/events/244605657/ ",
+    "group ": {
+        "category ": {
+            "shortname ": "music ",
+            "name ": "music ",
+            "id ": 21
+        },
+        "city ": "Brighton ",
+        "name ": "The Boston Minstrels ",
+        "group_lat ": 42.35,
+        "join_mode ": "approval ",
+        "country ": "us ",
+        "state ": "MA ",
+        "group_lon ": -71.12,
+        "group_photo ": {
+            "thumb_link ": "https://secure.meetupstatic.com/photos/event/4/e/c/9/thumb_464000169.jpeg ",
+            "photo_id ": 464000169,
+            "highres_link ": "https://secure.meetupstatic.com/photos/event/4/e/c/9/highres_464000169.jpeg ",
+            "photo_link ": "https://secure.meetupstatic.com/photos/event/4/e/c/9/600_464000169.jpeg "
+        },
+        "urlname ": "Boston-Minstrels ",
+        "id ": 3381222
+    },
+    "description ": "<p>Special guests of InTransition include Tim Mchale,Jonathan Black,and Jim McCue!Prizes - Drink and Food specials - a Howlin Good Time.Costumes optional(but there is a prize for best costume). < br > < /p>\n<p><img src=\"https: / / secure.meetupstatic.com / photos / event / 4 / 6 / 8 / b / 600 _465678059.jpeg \"></p> ",
+    "datatype ": "Meetup-Event ",
+    "rsvp_limit ": 0,
+    "payment_required ": "0 ",
+    "time ": 1509235200000,
+    "venue ": {
+        "city ": "Norfolk ",
+        "name ": "Novatos Bar and Grill ",
+        "zip ": "02056 ",
+        "country ": "US ",
+        "lon ": -71.29995,
+        "address_1 ": "218 Dedham Street ",
+        "lat ": 42.090664
+    },
+    "visibility ": "public ",
+    "yes_rsvp_count ": 1,
+    "mtime ": 1509213118392,
+    "maybe_rsvp_count ": 0,
+    "id ": "244605657 ",
+    "name ": "Halloween Party at Novatos with InTransition Band "
+}

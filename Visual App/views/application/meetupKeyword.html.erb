@@ -1,0 +1,54 @@
+<html>
+<head>
+  <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css" rel="stylesheet" />
+</head>
+<body>
+<script>
+var test = '<%=@keyword%>'
+console.log(test);
+console.log('Test');
+$( document ).ready(function() {
+  var table = $('#example').DataTable( {
+    "dom": '<"top"iflp<"clear">>rt<"bottom"iflp<"clear">>',
+    ajax: {
+      url:"https://dicteam8-restapi.herokuapp.com/getMeetupsForKeywordMonth/"+test,
+      dataSrc: ""
+    },
+    columns: [
+      { "data": "name"},
+      { "data": "key_location_state"},
+      { "data": "venue" },
+      { "data": "key_location_city"},
+      { "data": "key_category"},
+      { "data": "key_location_country"},
+      { "data": "key_datetime"},
+      { "data": "key_word",
+        "render": function ( data, type, full, meta ) {
+          return '<a style="font-weight:bold;animation: mymove 5s infinite;" href=" /realtime/'+data+' " target="_blank">View</a>';}}
+    ]
+  } );
+
+});
+</script>
+</body>
+<div style="height:80%;width:100%;opacity:0.8;color:black">
+  <table id="example" class="table table-striped table-bordered hover" cellspacing="2" width="100%">
+    <thead style="opacity:1;background-color:darkgray;padding:5%">
+    <tr>
+      <th class="site_name">name</th>
+      <th>State</th>
+      <th>Venue</th>
+      <th>City</th>
+      <th>Category</th>
+      <th>Country</th>
+      <th>Date</th>
+      <th>Keyword</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+</html>

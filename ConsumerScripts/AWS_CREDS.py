@@ -1,0 +1,8 @@
+# AWS credentials
+AWS_SECRET_ACCESS_KEY   = 'BJCYwL5zAEIt3hPGZnfkt3RBU1SAYgjQRlKqGzfX'
+AWS_ACCESS_KEY_ID       = 'AKIAIUXWPXCNXXZQKZQA'
+AWS_REGION_NAME         = 'us-east-1'
+AWS_STREAM_NAME         = 'DIC_MRT'
+
+# ------------ DYNAMO DB CONFIGURATIONS ------------
+DYNAMO_DB_REGION_NAME   = 'us-east-1'

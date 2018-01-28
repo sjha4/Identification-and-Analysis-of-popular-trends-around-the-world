@@ -1,0 +1,302 @@
+package controllers;
+
+import play.libs.Json;
+import play.mvc.*;
+
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughputDescription;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.regions.Regions;
+
+
+/**
+ * This controller contains an action to handle HTTP requests
+ * to the application's home page.
+ */
+public class HomeController extends Controller {
+
+    /**
+     * An action that renders an HTML page with a welcome message.
+     * The configuration in the <code>routes</code> file means that
+     * this method will be called when the application receives a
+     * <code>GET</code> request with a path of <code>/</code>.
+     */
+	AmazonDynamoDB ddb = AmazonDynamoDBClientBuilder.standard()
+			.withRegion(Regions.US_EAST_1)
+			.build();
+	String table_name = "live_twitter_dic8";
+    public Result index() {
+    	int countRecords =0;
+    	int countReplies = 0;
+    	Map<String,Integer> keywordCount = new HashMap<>();
+    	try {
+//    	    TableDescription table_info =
+//    	       ddb.describeTable(table_name).getTable();
+    	    ScanRequest scanRequest = new ScanRequest()
+                    .withTableName(table_name);
+    	    Map<String,AttributeValue> lastKey = null;
+    	    
+            do {
+            	
+                ScanResult scanResult = ddb.scan(scanRequest);
+     
+                List<Map<String,AttributeValue>> results = scanResult.getItems();
+                countRecords+=results.size();
+                results.forEach(r->{
+                	System.out.println(r);
+                	});
+                System.out.println("Count Records: "+countRecords);
+                for(Map<String,AttributeValue> mp : results){
+                	//for(String s:mp.keySet()){
+                		try{
+                			countReplies = mp.get("replies").getN()==null?-99:Integer.parseInt(mp.get("replies").getN());
+                		}
+                		catch(Exception e){
+                			countReplies = -99;
+                		}
+                		if(keywordCount.containsKey(mp.get("key_word"))){
+                			keywordCount.put(mp.get("key_word").getS(), keywordCount.get(mp.get("key_word"))+ countReplies);
+                		}
+                		else{
+                			keywordCount.put(mp.get("key_word").getS(),countReplies);
+                		}
+                	//}
+                }
+                //results.forEach(r->System.out.println(r.get("key_word").getS()));
+                lastKey = scanResult.getLastEvaluatedKey();
+                scanRequest.setExclusiveStartKey(lastKey);
+            } while (lastKey!=null);
+    	} catch (AmazonServiceException e) {
+    	    System.err.println(e.getErrorMessage());
+    	    System.exit(1);
+    	}
+    	System.out.println("----------------------Scanned Results-------------------------");
+    	for(String s:keywordCount.keySet()){
+    		System.out.println(s+" : " + keywordCount.get(s));
+    	}
+        return ok(views.html.index.render());
+    }
+    public Result hourly() {
+    	ObjectNode responseJson = Json.newObject();
+    	Map<String,Integer> keywordCount = new HashMap<>();
+    	try{
+    		Map<String,String> expressionAttributesNames = new HashMap<>();
+    	    expressionAttributesNames.put("#key_datetime","key_datetime");
+    	    Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
+    	    expressionAttributeValues.put(":from",new AttributeValue().withS("2017-11-24-00"));
+    	    expressionAttributeValues.put(":to",new AttributeValue().withS("2017-11-24-23"));
+    		ScanRequest scanRequest = new ScanRequest()
+                .withTableName("combinedTable_hourly")
+                .withFilterExpression("#key_datetime BETWEEN :from AND :to ")
+    		.withExpressionAttributeNames(expressionAttributesNames)
+            .withExpressionAttributeValues(expressionAttributeValues);
+	    Map<String,AttributeValue> lastKey = null;
+	    int countReplies = 0;
+	    do {
+        	
+            ScanResult scanResult = ddb.scan(scanRequest);
+ 
+            List<Map<String,AttributeValue>> results = scanResult.getItems();
+            int countRecords = results.size();
+            results.forEach(r->{
+            	System.out.println(r);
+            	});
+            for(Map<String,AttributeValue> mp : results){
+            	try{
+            		countReplies = mp.get("score").getN()==null?-99:Integer.parseInt(mp.get("score").getN());
+        		}
+            	catch(Exception e){
+        			countReplies = -99;
+        		}
+            	if(keywordCount.containsKey(mp.get("key_word"))){
+        			keywordCount.put(mp.get("key_word").getS(), keywordCount.get(mp.get("key_word"))+ countReplies);
+        		}
+        		else{
+        			keywordCount.put(mp.get("key_word").getS(),countReplies);
+        		}
+        	//}
+            	
+            }
+            lastKey = scanResult.getLastEvaluatedKey();
+            scanRequest.setExclusiveStartKey(lastKey);
+        } while (lastKey!=null);
+	} catch (AmazonServiceException e) {
+	    System.err.println(e.getErrorMessage());
+	    System.exit(1);
+	}
+	    for(String s:keywordCount.keySet()){
+	    	responseJson.put(s,keywordCount.get(s));
+	    }
+    	return ok(responseJson);
+    }
+    public Result minute() {
+    	ObjectNode responseJson = Json.newObject();
+    	Map<String,Integer> keywordCount = new HashMap<>();
+    	try{
+    		ScanRequest scanRequest = new ScanRequest()
+                    .withTableName("combinedTable");
+	    Map<String,AttributeValue> lastKey = null;
+	    int countReplies = 0;
+	    do {
+        	
+            ScanResult scanResult = ddb.scan(scanRequest);
+ 
+            List<Map<String,AttributeValue>> results = scanResult.getItems();
+            int countRecords = results.size();
+            results.forEach(r->{
+            	System.out.println(r);
+            	});
+            for(Map<String,AttributeValue> mp : results){
+            	try{
+            		countReplies = mp.get("score").getN()==null?-99:Integer.parseInt(mp.get("score").getN());
+            		if(countReplies==0){
+            			countReplies=1;
+            		}
+        		}
+            	catch(Exception e){
+        			countReplies = -99;
+        		}
+            	if(keywordCount.containsKey(mp.get("key_word"))){
+        			keywordCount.put(mp.get("key_word").getS(), keywordCount.get(mp.get("key_word"))+ countReplies);
+        		}
+        		else{
+        			keywordCount.put(mp.get("key_word").getS(),countReplies);
+        		}
+        	//}
+            	
+            }
+            lastKey = scanResult.getLastEvaluatedKey();
+            scanRequest.setExclusiveStartKey(lastKey);
+        } while (lastKey!=null);
+	} catch (AmazonServiceException e) {
+	    System.err.println(e.getErrorMessage());
+	    System.exit(1);
+	}
+	    for(String s:keywordCount.keySet()){
+	    	responseJson.put(s,keywordCount.get(s));
+	    }
+    	return ok(responseJson);
+
+    }
+    public Result realTime(){
+    	ObjectNode responseJson = Json.newObject();
+    	DateFormat dateHourFormat = new SimpleDateFormat("yyyy-MM-dd-HH");
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    	Date date = new Date();
+    	String hour = dateHourFormat.format(date);
+    	String starthour = dateFormat.format(date)+"-00";
+    	System.out.println(hour);
+    	System.out.println(starthour);
+    	//2016/11/16 12:08:43
+    	Map<String,Integer> keywordCount = new HashMap<>();
+    	try{
+    		Map<String,String> expressionAttributesNames = new HashMap<>();
+    	    expressionAttributesNames.put("#key_datetime","key_datetime");
+    	    Map<String,AttributeValue> expressionAttributeValues = new HashMap<>();
+    	    expressionAttributeValues.put(":from",new AttributeValue().withS(starthour));
+    	    expressionAttributeValues.put(":to",new AttributeValue().withS(hour));
+    		ScanRequest scanRequest = new ScanRequest()
+                .withTableName("combinedTable_hourly")
+                .withFilterExpression("#key_datetime BETWEEN :from AND :to ")
+    		.withExpressionAttributeNames(expressionAttributesNames)
+            .withExpressionAttributeValues(expressionAttributeValues);
+	    Map<String,AttributeValue> lastKey = null;
+	    int countReplies = 0;
+	    do {
+        	
+            ScanResult scanResult = ddb.scan(scanRequest);
+ 
+            List<Map<String,AttributeValue>> results = scanResult.getItems();
+            //int countRecords = results.size();
+            results.forEach(r->{
+            	System.out.println(r);
+            	});
+            for(Map<String,AttributeValue> mp : results){
+            	try{
+            		countReplies = mp.get("score").getN()==null?-99:Integer.parseInt(mp.get("score").getN());
+        		}
+            	catch(Exception e){
+        			countReplies = -99;
+        		}
+            	if(keywordCount.containsKey(mp.get("key_word"))){
+        			keywordCount.put(mp.get("key_word").getS(), keywordCount.get(mp.get("key_word"))+ countReplies);
+        		}
+        		else{
+        			keywordCount.put(mp.get("key_word").getS(),countReplies);
+        		}
+        	//}
+            	
+            }
+            lastKey = scanResult.getLastEvaluatedKey();
+            scanRequest.setExclusiveStartKey(lastKey);
+        } while (lastKey!=null);
+	} catch (AmazonServiceException e) {
+	    System.err.println(e.getErrorMessage());
+	    System.exit(1);
+	}
+    	try{
+    		ScanRequest scanRequest = new ScanRequest()
+                    .withTableName("combinedTable");
+	    Map<String,AttributeValue> lastKey = null;
+	    int countReplies = 0;
+	    do {
+        	
+            ScanResult scanResult = ddb.scan(scanRequest);
+ 
+            List<Map<String,AttributeValue>> results = scanResult.getItems();
+            //int countRecords = results.size();
+            results.forEach(r->{
+            	System.out.println(r);
+            	});
+            for(Map<String,AttributeValue> mp : results){
+            	try{
+            		countReplies = mp.get("score").getN()==null?-99:Integer.parseInt(mp.get("score").getN());
+            		if(countReplies==0){
+            			countReplies=1;
+            		}
+        		}
+            	catch(Exception e){
+        			countReplies = -99;
+        		}
+            	if(keywordCount.containsKey(mp.get("key_word"))){
+            		
+        			keywordCount.put(mp.get("key_word").getS(), keywordCount.get(mp.get("key_word"))+ countReplies);
+        		}
+        		else{
+        			if(mp.get("key_word").getS().contains("Test2"))
+        				responseJson.put(mp.get("key_word").getS(),"Once");
+        			keywordCount.put(mp.get("key_word").getS(),countReplies);
+        		}
+        	//}
+            	
+            }
+            lastKey = scanResult.getLastEvaluatedKey();
+            scanRequest.setExclusiveStartKey(lastKey);
+        } while (lastKey!=null);
+	} catch (AmazonServiceException e) {
+	    System.err.println(e.getErrorMessage());
+	    System.exit(1);
+	}
+	    for(String s:keywordCount.keySet()){
+	    	responseJson.put(s,keywordCount.get(s));
+	    }
+    	return ok(responseJson);
+
+    	
+    }
+}

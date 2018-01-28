@@ -1,0 +1,5 @@
+pip install boto3
+pip install praw
+sudo apt-get install python-pycurl
+sudo apt-get install python-twitter (* Not valid? : sudo apt-get install python-TwitterAPI)
+

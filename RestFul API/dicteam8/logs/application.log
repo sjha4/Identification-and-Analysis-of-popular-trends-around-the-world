@@ -1,0 +1,3 @@
+2017-11-27 13:12:57,658 [INFO] from play.api.Play in play-dev-mode-akka.actor.default-dispatcher-2 - Application started (Dev)
+2017-11-27 14:23:21,919 [INFO] from play.api.Play in play-dev-mode-akka.actor.default-dispatcher-3 - Application started (Dev)
+2017-11-28 14:02:32,893 [INFO] from play.core.server.AkkaHttpServer in pool-7-thread-3 - Stopping server...

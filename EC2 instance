@@ -1,0 +1,14 @@
+DIC591Try1.pem attached in repo.
+Below steps performed:
+pip install boto3
+pip install praw
+sudo apt-get install python-pycurl
+sudo apt-get install python-TwitterAPI
+
+Connect to running instance:
+
+> ssh -i "DIC591Try1.pem" ubuntu@ec2-54-146-66-99.compute-1.amazonaws.com
+
+ls
+cd Team8Project/
+Run required files

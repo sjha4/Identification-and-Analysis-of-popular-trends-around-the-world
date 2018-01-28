@@ -1,0 +1,54 @@
+<html>
+<script>
+  $( document ).ready(function() {
+    var test ='<%=@keyword%>';
+    var labels = [];
+    var data = [];
+    console.log('render report');
+    $.ajax({
+      url: "https://dicteam8-restapi.herokuapp.com/checkTopTrends/"+test,
+      type: 'GET'
+    }).done(function (response) {
+
+      var parsedChartdata;// = $.parseJSON(response);
+      console.log(response);
+
+      response.forEach(function(entry) {
+        labels.push(entry.keyword);
+        data.push(entry.count);
+        console.log(entry);
+      });
+      console.log(labels);
+      console.log(data);
+      var mychart = new Chart(document.getElementById("line-chart"), {
+        type: 'line',
+        data: {
+          labels: labels.sort(),
+          datasets: [{
+            label: test,
+            borderColor: "#3e95cd",
+            data: data
+          }]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'Real time trend of Keyword: '+ test
+          }
+        }
+      });
+      $("#line-chart").click(
+          function(evt){
+            var activePoints = mychart.getElementsAtEvent(evt);
+            window.location.href = "meetupKeyword/"+labels[activePoints[0]._index];
+
+          }
+      );
+    })
+
+  })
+</script>
+<body>
+<canvas id="line-chart" width="500" height="150"></canvas>
+</body>
+</html>

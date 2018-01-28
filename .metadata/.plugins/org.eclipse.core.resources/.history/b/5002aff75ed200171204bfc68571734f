@@ -1,0 +1,7 @@
+# This is the main configuration file for the application.
+# https://www.playframework.com/documentation/latest/ConfigFile
+play.filters.enabled += play.filters.hosts.AllowedHostsFilter
+play.filters.hosts {
+  # Allow requests to example.com, its subdomains, and localhost:9000.
+  allowed = [".", ".example.com", "localhost:9000", "192.168.0.13:9000", "107.13.182.238"]
+}
